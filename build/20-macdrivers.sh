@@ -21,49 +21,16 @@ set -oue pipefail
 # - Remove repo files to keep the image clean (repos don't work at runtime)
 ###############################################################################
 
-### Install Google Chrome from Official Repository
+### Install FacetimeHD from Fedora COPR
 echo "Installing FacetimeHD driver..."
 
-# Add Google Chrome RPM repository
-cat > /etc/yum.repos.d/google-chrome.repo << 'EOF'
-[google-chrome]
-name=google-chrome
-baseurl=https://dl.google.com/linux/chrome/rpm/stable/x86_64
-enabled=1
-gpgcheck=1
-gpgkey=https://dl.google.com/linux/linux_signing_key.pub
-EOF
+# Enable repository
+dnf5 copr enable mulderje/facetimehd-kmod
 
-# Install Chrome
-dnf5 install -y google-chrome-stable
+# Install KMod Driver
+dnf5 install -y facetimehd-kmod
 
 # Clean up repo file (required - repos don't work at runtime in bootc images)
-rm -f /etc/yum.repos.d/google-chrome.repo
+#rm -f /etc/yum.repos.d/google-chrome.repo
 
-echo "Google Chrome installed successfully"
-
-### Install 1Password from Official Repository
-echo "Installing 1Password..."
-
-# Add 1Password RPM repository GPG key
-rpm --import https://downloads.1password.com/linux/keys/1password.asc
-
-# Add 1Password RPM repository
-cat > /etc/yum.repos.d/1password.repo << 'EOF'
-[1password]
-name=1Password Stable Channel
-baseurl=https://downloads.1password.com/linux/rpm/stable/$basearch
-enabled=1
-gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://downloads.1password.com/linux/keys/1password.asc
-EOF
-
-# Install 1Password
-dnf5 install -y 1password
-
-# Clean up repo file (required - repos don't work at runtime in bootc images)
-rm -f /etc/yum.repos.d/1password.repo
-
-echo "1Password installed successfully"
-echo "Chrome and 1Password installation complete!"
+echo "FacetimeHD driver installation complete!"

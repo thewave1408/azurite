@@ -24,11 +24,14 @@ set -oue pipefail
 ### Install FacetimeHD from Fedora COPR
 echo "Installing FacetimeHD driver..."
 
-# Enable repository
-dnf5 copr enable mulderje/facetimehd-kmod
+# Download Firmware
+echo 'install_items+=" /usr/lib/firmware/facetimehd/firmware.bin "' >> /etc/dracut.conf.d/facetimehd.conf
 
-# Install KMod Driver
-dnf5 install -y facetimehd-kmod
+# Enable repository
+dnf5 copr enable frgt10/facetimehd-dkms
+
+# Install DKMS driver
+dnf5 install -y facetimehd
 
 # Clean up repo file (required - repos don't work at runtime in bootc images)
 #rm -f /etc/yum.repos.d/google-chrome.repo

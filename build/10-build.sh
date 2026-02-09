@@ -48,7 +48,6 @@ echo "::group:: Install Packages"
 
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
-copr_install_isolated "mulderje/facetimehd-kmod" facetimehd-kmod
 
 echo "::endgroup::"
 

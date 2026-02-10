@@ -5,6 +5,13 @@
 ## Example application installation commands
 ## These are simplified examples adapted from Bluefin
 
+# Install Azurite recommended Flatpaks
+[group('Apps')]
+install-azurite:
+    #!/usr/bin/env bash
+    echo "Installing Azurite recommended applications via Homebrew..."
+    brew bundle --file /usr/share/ublue-os/homebrew/azurite.Brewfile
+
 # Install default applications via Homebrew
 [group('Apps')]
 install-default-apps:

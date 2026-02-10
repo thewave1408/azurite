@@ -1,39 +1,73 @@
-
 #!/usr/bin/env bash
 
-# Tell build process to exit if there are any errors.
+# FaceTime HD Driver Installation Script for BlueBuild
+# Installs drivers from patjak/facetimehd repository
+
 set -oue pipefail
 
-###############################################################################
-# Example: Installing 1Password and Google Chrome from Official Repositories
-###############################################################################
-# This is an EXAMPLE file showing how to add third-party RPM repositories
-# and install packages from them following Universal Blue/Bluefin conventions.
-#
-# To use this script:
-# 1. Rename this file to remove the .example extension: 20-onepassword.sh
-# 2. The build system will automatically run scripts in numerical order
-#
-# IMPORTANT CONVENTIONS (from @ublue-os/bluefin):
-# - Always clean up temporary repository files after installation
-# - Use dnf5 exclusively (never dnf or yum)
-# - Always use -y flag for non-interactive operations
-# - Remove repo files to keep the image clean (repos don't work at runtime)
-###############################################################################
+echo "Installing FaceTime HD drivers..."
 
-### Install FacetimeHD from Fedora COPR
-echo "Installing FacetimeHD driver..."
+# Install build dependencies
+echo "Installing build dependencies..."
+dnf5 install -y \
+    kernel-devel \
+    kernel-headers \
+    gcc \
+    make \
+    git \
+    curl \
+    xz \
+    cpio
 
-# Download Firmware
-echo 'install_items+=" /usr/lib/firmware/facetimehd/firmware.bin "' >> /etc/dracut.conf.d/facetimehd.conf
+# Clone and build
+echo "Cloning repository..."
+git clone https://github.com/patjak/facetimehd.git /tmp/facetimehd
 
-# Enable repository
-dnf5 copr enable frgt10/facetimehd-dkms
+cd /tmp/facetimehd
 
-# Install DKMS driver
-dnf5 install -y facetimehd
+# Build kernel module
+echo "Building kernel module..."
+make
 
-# Clean up repo file (required - repos don't work at runtime in bootc images)
-#rm -f /etc/yum.repos.d/google-chrome.repo
+# Install kernel module
+echo "Installing kernel module..."
+make install
 
-echo "FacetimeHD driver installation complete!"
+# Build and install firmware
+echo "Building and installing firmware..."
+cd firmware
+make
+
+mkdir -p /usr/lib/firmware/facetimehd
+cp firmware.bin /usr/lib/firmware/facetimehd/
+
+# Run depmod for all kernels
+echo "Running depmod..."
+for kver in /lib/modules/*; do
+    if [ -d "$kver" ]; then
+        depmod -a "$(basename "$kver")" || true
+    fi
+done
+
+# Configure module loading
+echo "Configuring module autoload..."
+mkdir -p /etc/modules-load.d
+echo "facetimehd" > /etc/modules-load.d/facetimehd.conf
+
+# Cleanup build dependencies
+echo "Cleaning up build dependencies..."
+dnf5 uninstall -y \
+    kernel-devel \
+    kernel-headers \
+    gcc \
+    make \
+    git \
+    curl \
+    xz \
+    cpio
+
+# Remove temporary files
+cd /
+rm -rf /tmp/facetimehd
+
+echo "FaceTime HD drivers installed successfully!"

@@ -1,6 +1,0 @@
-# Azurite Additions
-[Flatpak Preinstall org.moonlight-stream.Moonlight]
-Branch=stable
-
-[Flatpak Preinstall org.remmina.Remmina]
-Branch=stable
